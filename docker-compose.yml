@@ -1,6 +1,6 @@
 services:
   innexar-workspace-app:
-    image: ${IMAGE_REPOSITORY:-ghcr.io/innexar-plat/innexar-brasil}/workspace-app:${IMAGE_TAG:-latest}
+    image: ${IMAGE:-ghcr.io/innexar-plat/innexar-workspace-app:latest}
     build:
       context: .
       dockerfile: Dockerfile
