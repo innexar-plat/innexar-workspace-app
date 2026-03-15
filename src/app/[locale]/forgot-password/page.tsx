@@ -35,7 +35,10 @@ export default function WorkspaceForgotPasswordPage() {
         WORKSPACE_API_PATHS.AUTH.STAFF_FORGOT_PASSWORD,
         {
           method: "POST",
-          body: JSON.stringify({ email: email.trim().toLowerCase() }),
+          body: JSON.stringify({
+            email: email.trim().toLowerCase(),
+            locale,
+          }),
         }
       );
       const data = await res.json().catch(() => ({}));
