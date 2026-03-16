@@ -1,9 +1,28 @@
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
+import Script from "next/script";
 import { Inter } from "next/font/google";
 import "../globals.css";
+import { ChunkLoadErrorHandler } from "@/components/chunk-load-error-handler";
 import WorkspaceLayoutWrapper from "./workspace-layout-wrapper";
+
+const CHUNK_ERROR_SCRIPT = `
+(function(){
+  var k='chunk-error-refreshed';
+  function isChunkErr(e){
+    return e&&(e.name==='ChunkLoadError'||(e.message&&e.message.includes('Loading chunk'))||(e.message&&e.message.includes('Failed to fetch dynamically imported module')));
+  }
+  function tryReload(){
+    if(!sessionStorage.getItem(k)){
+      sessionStorage.setItem(k,'1');
+      location.reload();
+    }
+  }
+  window.addEventListener('error',function(ev){if(isChunkErr(ev.error))tryReload();});
+  window.addEventListener('unhandledrejection',function(ev){if(isChunkErr(ev.reason))tryReload();});
+})();
+`;
 
 const inter = Inter({ subsets: ["latin"] });
 const locales = ["en", "pt", "es"];
@@ -25,9 +44,14 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <WorkspaceLayoutWrapper>{children}</WorkspaceLayoutWrapper>
-        </NextIntlClientProvider>
+        <Script id="chunk-error-handler" strategy="beforeInteractive">
+          {CHUNK_ERROR_SCRIPT}
+        </Script>
+        <ChunkLoadErrorHandler>
+          <NextIntlClientProvider messages={messages} locale={locale}>
+            <WorkspaceLayoutWrapper>{children}</WorkspaceLayoutWrapper>
+          </NextIntlClientProvider>
+        </ChunkLoadErrorHandler>
       </body>
     </html>
   );
