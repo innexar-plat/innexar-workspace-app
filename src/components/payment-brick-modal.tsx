@@ -271,11 +271,15 @@ export function PaymentBrickModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={handleClose}>
       <div
-        className="bg-slate-900 border border-white/10 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto"
+        className="rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto"
+        style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--foreground)" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <h3 className="text-lg font-semibold text-white">
+        <div
+          className="flex items-center justify-between p-4 border-b"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <h3 className="text-lg font-semibold">
             Pagar fatura #{invoice?.id} – {invoice?.currency} {invoice?.total.toFixed(2)}
           </h3>
           <button

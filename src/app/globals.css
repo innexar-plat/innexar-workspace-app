@@ -80,3 +80,46 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scroll-thumb-hover);
 }
+
+/* ---------------------------------------------------------------------------
+   Workspace app overrides
+   - Garante contraste correto em tema claro/escuro mesmo com classes Tailwind
+--------------------------------------------------------------------------- */
+
+.workspace-root {
+  background: var(--bg);
+  color: var(--foreground);
+}
+
+/* Texto utilitário dentro do workspace */
+.workspace-root .text-white {
+  color: var(--foreground);
+}
+.dark .workspace-root .text-white {
+  color: #f9fafb;
+}
+
+.workspace-root .text-slate-400,
+.workspace-root .text-slate-300 {
+  color: var(--foreground-muted);
+}
+.dark .workspace-root .text-slate-400,
+.dark .workspace-root .text-slate-300 {
+  color: #cbd5f5;
+}
+
+/* Cards que antes usavam bg-white/5 e border-white/10 */
+.workspace-root .bg-white\/5 {
+  background-color: var(--card);
+}
+.dark .workspace-root .bg-white\/5 {
+  background-color: rgba(15, 23, 42, 0.5);
+}
+
+.workspace-root .border-white\/10 {
+  border-color: var(--border);
+}
+.dark .workspace-root .border-white\/10 {
+  border-color: rgba(148, 163, 184, 0.4);
+}
+

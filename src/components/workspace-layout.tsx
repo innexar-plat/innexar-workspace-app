@@ -190,7 +190,7 @@ export default function WorkspaceLayout({
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
+    <div className="workspace-root min-h-screen" style={{ background: "var(--bg)" }}>
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
