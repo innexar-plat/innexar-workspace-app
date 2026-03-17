@@ -20,6 +20,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@swc/helpers": "^0.5.19",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20.19.30",
     "@types/react": "19.2.14",
