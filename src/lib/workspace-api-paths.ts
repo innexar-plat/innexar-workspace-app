@@ -99,6 +99,43 @@ export const WORKSPACE_API_PATHS = {
     CONTACTS: `${PREFIX}/crm/contacts`,
     CONTACT_DETAIL: (id: string | number) =>
       `${PREFIX}/crm/contacts/${id}`,
+    LEADS: (params?: { status?: string; origem?: string; responsavel_id?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.status) sp.set('status', params.status);
+      if (params?.origem) sp.set('origem', params.origem);
+      if (params?.responsavel_id != null) sp.set('responsavel_id', String(params.responsavel_id));
+      const q = sp.toString();
+      return `${PREFIX}/crm/leads${q ? `?${q}` : ''}`;
+    },
+    LEAD_DETAIL: (id: string | number) => `${PREFIX}/crm/leads/${id}`,
+    DEALS: (params?: { etapa_id?: number; responsavel_id?: number; status?: string }) => {
+      const sp = new URLSearchParams();
+      if (params?.etapa_id != null) sp.set('etapa_id', String(params.etapa_id));
+      if (params?.responsavel_id != null) sp.set('responsavel_id', String(params.responsavel_id));
+      if (params?.status) sp.set('status', params.status);
+      const q = sp.toString();
+      return `${PREFIX}/crm/deals${q ? `?${q}` : ''}`;
+    },
+    DEAL_DETAIL: (id: string | number) => `${PREFIX}/crm/deals/${id}`,
+    DEAL_MOVE: (id: string | number) => `${PREFIX}/crm/deals/${id}/move`,
+    PIPELINE: `${PREFIX}/crm/pipeline`,
+    PIPELINE_DETAIL: (id: string | number) => `${PREFIX}/crm/pipeline/${id}`,
+    PIPELINE_STAGES: (pipelineId: string | number) =>
+      `${PREFIX}/crm/pipeline/${pipelineId}/stages`,
+    ACTIVITIES: (params?: { lead_id?: number; deal_id?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.lead_id != null) sp.set('lead_id', String(params.lead_id));
+      if (params?.deal_id != null) sp.set('deal_id', String(params.deal_id));
+      const q = sp.toString();
+      return `${PREFIX}/crm/activities${q ? `?${q}` : ''}`;
+    },
+    TASKS: (params?: { relacionado_tipo?: string; relacionado_id?: number }) => {
+      const sp = new URLSearchParams();
+      if (params?.relacionado_tipo) sp.set('relacionado_tipo', params.relacionado_tipo);
+      if (params?.relacionado_id != null) sp.set('relacionado_id', String(params.relacionado_id));
+      const q = sp.toString();
+      return `${PREFIX}/crm/tasks${q ? `?${q}` : ''}`;
+    },
   },
   HESTIA: {
     OVERVIEW: `${PREFIX}/hestia/overview`,

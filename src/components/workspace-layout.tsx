@@ -60,27 +60,61 @@ const SIDEBAR_CATEGORIES: NavCategory[] = [
   {
     label: "Comercial",
     items: [
-      { key: "customers", label: "Clientes", icon: UserCircle, href: "/customers" },
-      { key: "crm", label: "Contatos", icon: Users, href: "/crm/contacts" },
-      { key: "orders", label: "Pedidos", icon: ShoppingCart, href: "/orders" },
-      { key: "kanban", label: "Kanban", icon: Columns3, href: "/kanban" },
+      {
+        key: "comercial",
+        label: "Comercial",
+        icon: Users,
+        href: "/customers",
+        children: [
+          { key: "customers", label: "Clientes", href: "/customers" },
+          { key: "orders", label: "Pedidos", href: "/orders" },
+          { key: "kanban", label: "Kanban", href: "/kanban" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "CRM",
+    items: [
+      {
+        key: "crm",
+        label: "CRM",
+        icon: UserCircle,
+        href: "/crm/leads",
+        children: [
+          { key: "crm-contacts", label: "Contatos", href: "/crm/contacts" },
+          { key: "crm-leads", label: "Leads", href: "/crm/leads" },
+          { key: "crm-funil", label: "Funil", href: "/crm/funil" },
+        ],
+      },
     ],
   },
   {
     label: "Projetos",
     items: [
-      { key: "briefings", label: "Briefings", icon: FileText, href: "/briefings" },
-      { key: "projects", label: "Projetos", icon: FolderOpen, href: "/projects" },
+      {
+        key: "projetos",
+        label: "Projetos",
+        icon: FolderOpen,
+        href: "/briefings",
+        children: [
+          { key: "briefings", label: "Briefings", href: "/briefings" },
+          { key: "projects", label: "Projetos", href: "/projects" },
+        ],
+      },
     ],
   },
   {
     label: "Suporte",
     items: [
       {
-        key: "support",
+        key: "suporte",
         label: "Suporte",
         icon: MessageSquare,
         href: "/support/tickets",
+        children: [
+          { key: "support-tickets", label: "Tickets", href: "/support/tickets" },
+        ],
       },
     ],
   },
@@ -142,9 +176,14 @@ export default function WorkspaceLayout({
   const { theme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [billingOpen, setBillingOpen] = useState(true);
-  const [configOpen, setConfigOpen] = useState(false);
-  const [hestiaOpen, setHestiaOpen] = useState(true);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    billing: true,
+    config: false,
+    hestia: true,
+    comercial: true,
+    projetos: true,
+    suporte: true,
+  });
   const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
   const headerMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -174,19 +213,10 @@ export default function WorkspaceLayout({
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  const subOpen = (key: string) =>
-    key === "billing"
-      ? billingOpen
-      : key === "config"
-        ? configOpen
-        : key === "hestia"
-          ? hestiaOpen
-          : false;
+  const subOpen = (key: string) => openSections[key] ?? false;
 
   const setSubOpen = (key: string, value: boolean) => {
-    if (key === "billing") setBillingOpen(value);
-    if (key === "config") setConfigOpen(value);
-    if (key === "hestia") setHestiaOpen(value);
+    setOpenSections((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
