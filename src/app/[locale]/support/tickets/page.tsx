@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, MessageSquare, FolderOpen, Filter } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
+import { Modal } from '@/components/ui/modal';
 
 interface Ticket {
   id: number;
@@ -203,60 +203,39 @@ export default function WorkspaceSupportTicketsPage() {
         </div>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md"
-          >
-            <h3 className="text-lg font-semibold text-white mb-4">Novo ticket</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Customer ID</label>
-                <input
-                  type="number"
-                  value={formCustomerId}
-                  onChange={(e) => setFormCustomerId(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Assunto</label>
-                <input
-                  type="text"
-                  value={formSubject}
-                  onChange={(e) => setFormSubject(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Criar
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo ticket">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="modal-label">Customer ID</label>
+            <input
+              type="number"
+              value={formCustomerId}
+              onChange={(e) => setFormCustomerId(e.target.value)}
+              required
+              className="modal-input"
+            />
+          </div>
+          <div>
+            <label className="modal-label">Assunto</label>
+            <input
+              type="text"
+              value={formSubject}
+              onChange={(e) => setFormSubject(e.target.value)}
+              required
+              className="modal-input"
+            />
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">
+              Cancelar
+            </button>
+            <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              Criar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

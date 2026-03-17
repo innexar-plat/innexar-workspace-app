@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, Settings, PlayCircle, Pencil } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
+import { Modal } from '@/components/ui/modal';
 
 interface Integration {
   id: number;
@@ -261,121 +262,83 @@ export default function WorkspaceConfigIntegrationsPage() {
         <p className="text-center text-slate-400 py-12">Nenhuma integracao.</p>
       )}
 
-      {modalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => { setModalOpen(false); setEditingId(null); setEditingValueMasked(null); }}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <h3 className="text-lg font-semibold text-white mb-4">{editingId !== null ? 'Editar integracao' : 'Nova integracao'}</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <Modal
+        open={modalOpen}
+        onClose={() => { setModalOpen(false); setEditingId(null); setEditingValueMasked(null); }}
+        title={editingId !== null ? 'Editar integração' : 'Nova integração'}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="modal-label">Provider</label>
+            {editingId !== null ? (
+              <input type="text" value={formProvider} readOnly className="modal-input opacity-80" />
+            ) : (
+              <select value={formProvider} onChange={(e) => { setFormProvider(e.target.value); if (e.target.value === 'stripe') setFormKey('secret_key'); if (e.target.value === 'mercadopago') setFormKey('access_token'); if (e.target.value === 'hestia') setFormKey('api_credentials'); if (e.target.value === 'smtp') setFormKey('config'); }} className="modal-input">
+                <option value="stripe">stripe</option>
+                <option value="mercadopago">mercadopago</option>
+                <option value="hestia">hestia</option>
+                <option value="smtp">smtp</option>
+              </select>
+            )}
+          </div>
+          <div>
+            <label className="modal-label">Key</label>
+            <input type="text" value={formKey} readOnly={editingId !== null} className={`modal-input font-mono text-sm ${editingId !== null ? 'opacity-80' : ''}`} />
+          </div>
+          {isHestia ? (
+            <>
+              <p className="modal-muted bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-2">
+                No Hestia: <strong>User → API</strong>. Cole o <strong>ID da chave de acesso</strong> e a <strong>Chave Secreta</strong> (copie a Chave Secreta antes de fechar a tela no Hestia — ele não mostra de novo).
+              </p>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Provider</label>
-                {editingId !== null ? (
-                  <input type="text" value={formProvider} readOnly className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-slate-400" />
-                ) : (
-                  <select value={formProvider} onChange={(e) => { setFormProvider(e.target.value); if (e.target.value === 'stripe') setFormKey('secret_key'); if (e.target.value === 'mercadopago') setFormKey('access_token'); if (e.target.value === 'hestia') setFormKey('api_credentials'); if (e.target.value === 'smtp') setFormKey('config'); }} className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="stripe">stripe</option>
-                    <option value="mercadopago">mercadopago</option>
-                    <option value="hestia">hestia</option>
-                    <option value="smtp">smtp</option>
-                  </select>
-                )}
+                <label className="modal-label">URL base</label>
+                <input type="url" value={formHestiaBaseUrl} onChange={(e) => setFormHestiaBaseUrl(e.target.value)} placeholder="https://hosting.innexar.com.br:8083" className="modal-input font-mono text-sm" aria-label="URL base do Hestia" />
+                <p className="modal-muted mt-1">URL do painel Hestia (com porta, ex.: 8083).</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Key</label>
-                <input type="text" value={formKey} readOnly={editingId !== null} className={`w-full px-4 py-2 rounded-xl border border-white/10 font-mono text-sm ${editingId !== null ? 'bg-white/5 text-slate-400' : 'bg-white/5 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`} />
+                <label className="modal-label">ID da chave de acesso</label>
+                <input type="text" value={formHestiaAccessKey} onChange={(e) => setFormHestiaAccessKey(e.target.value)} placeholder="Ex.: xxxxx (ID que o Hestia exibe)" className="modal-input font-mono text-sm" autoComplete="off" aria-label="ID da chave de acesso (Hestia)" />
+                <p className="modal-muted mt-1">Valor que o Hestia exibe como &quot;ID da chave de acesso&quot;.</p>
               </div>
-              {isHestia ? (
-                <>
-                  <p className="text-xs text-slate-400 bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                    No Hestia: <strong>User → API</strong>. Cole o <strong>ID da chave de acesso</strong> e a <strong>Chave Secreta</strong> (copie a Chave Secreta antes de fechar a tela no Hestia — ele não mostra de novo).
-                  </p>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">URL base</label>
-                    <input
-                      type="url"
-                      value={formHestiaBaseUrl}
-                      onChange={(e) => setFormHestiaBaseUrl(e.target.value)}
-                      placeholder="https://hosting.innexar.com.br:8083"
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      aria-label="URL base do Hestia"
-                    />
-                    <p className="text-xs text-slate-500 mt-1">URL do painel Hestia (com porta, ex.: 8083).</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">ID da chave de acesso</label>
-                    <input
-                      type="text"
-                      value={formHestiaAccessKey}
-                      onChange={(e) => setFormHestiaAccessKey(e.target.value)}
-                      placeholder="Ex.: xxxxx (ID que o Hestia exibe)"
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      autoComplete="off"
-                      aria-label="ID da chave de acesso (Hestia)"
-                    />
-                    <p className="text-xs text-slate-500 mt-1">Valor que o Hestia exibe como &quot;ID da chave de acesso&quot;.</p>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-1">Chave Secreta</label>
-                    <input
-                      type="password"
-                      value={formHestiaSecretKey}
-                      onChange={(e) => setFormHestiaSecretKey(e.target.value)}
-                      placeholder="Copie no Hestia antes de fechar a tela"
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      autoComplete="new-password"
-                      aria-label="Chave Secreta (Hestia)"
-                    />
-                    <p className="text-xs text-amber-600 mt-1">Atenção: o Hestia mostra a Chave Secreta só uma vez. Salve antes de fechar.</p>
-                  </div>
-                  {editingId !== null && (
-                    <p className="text-xs text-slate-500">Deixe os três campos em branco para manter as credenciais atuais.</p>
-                  )}
-                </>
-              ) : (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Value</label>
-                  {editingId !== null && editingValueMasked && (
-                    <p className="text-xs text-slate-500 mb-1 font-mono break-all" title="Valor atual (mascarado)">
-                      Atual: {editingValueMasked}
-                    </p>
-                  )}
-                  <textarea
-                    value={formValue}
-                    onChange={(e) => setFormValue(e.target.value)}
-                    required={editingId === null}
-                    rows={3}
-                    placeholder="JSON ou valor da chave"
-                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
-                    aria-label="Valor da integração"
-                  />
-                  {editingId !== null && (
-                    <p className="text-xs text-slate-500 mt-1">Deixe em branco para manter o valor atual.</p>
-                  )}
-                </div>
+              <div>
+                <label className="modal-label">Chave Secreta</label>
+                <input type="password" value={formHestiaSecretKey} onChange={(e) => setFormHestiaSecretKey(e.target.value)} placeholder="Copie no Hestia antes de fechar a tela" className="modal-input font-mono text-sm" autoComplete="new-password" aria-label="Chave Secreta (Hestia)" />
+                <p className="text-xs text-amber-600 mt-1">Atenção: o Hestia mostra a Chave Secreta só uma vez. Salve antes de fechar.</p>
+              </div>
+              {editingId !== null && <p className="modal-muted">Deixe os três campos em branco para manter as credenciais atuais.</p>}
+            </>
+          ) : (
+            <div>
+              <label className="modal-label">Value</label>
+              {editingId !== null && editingValueMasked && (
+                <p className="modal-muted mb-1 font-mono break-all" title="Valor atual (mascarado)">Atual: {editingValueMasked}</p>
               )}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Mode</label>
-                <select value={formMode} onChange={(e) => setFormMode(e.target.value)} className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="test">test</option>
-                  <option value="live">live</option>
-                </select>
-              </div>
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={formEnabled} onChange={(e) => setFormEnabled(e.target.checked)} className="rounded border-white/20 text-blue-600 focus:ring-blue-500 bg-white/5" />
-                  <span className="text-sm font-medium text-slate-300">Habilitado</span>
-                </label>
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button type="button" onClick={() => { setModalOpen(false); setEditingId(null); setEditingValueMasked(null); }} className="px-4 py-2 rounded-xl bg-white/10 text-slate-300 hover:bg-white/20 font-medium">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2 font-medium">
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingId !== null ? 'Salvar' : 'Criar'}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+              <textarea value={formValue} onChange={(e) => setFormValue(e.target.value)} required={editingId === null} rows={3} placeholder="JSON ou valor da chave" className="modal-textarea font-mono text-sm" aria-label="Valor da integração" />
+              {editingId !== null && <p className="modal-muted mt-1">Deixe em branco para manter o valor atual.</p>}
+            </div>
+          )}
+          <div>
+            <label className="modal-label">Mode</label>
+            <select value={formMode} onChange={(e) => setFormMode(e.target.value)} className="modal-input">
+              <option value="test">test</option>
+              <option value="live">live</option>
+            </select>
+          </div>
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={formEnabled} onChange={(e) => setFormEnabled(e.target.checked)} className="rounded border-[var(--border)] bg-[var(--surface)] text-[var(--cyan-500)] focus:ring-[var(--cyan-500)]" />
+              <span className="modal-label !mb-0">Habilitado</span>
+            </label>
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => { setModalOpen(false); setEditingId(null); setEditingValueMasked(null); }} className="modal-btn-secondary">Cancelar</button>
+            <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {editingId !== null ? 'Salvar' : 'Criar'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

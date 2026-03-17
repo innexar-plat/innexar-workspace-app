@@ -12,6 +12,7 @@ import {
 } from "@/lib/workspace-api";
 import { WORKSPACE_API_PATHS } from "@/lib/workspace-api-paths";
 import { TableSkeleton } from "@/components/table-skeleton";
+import { Modal } from '@/components/ui/modal';
 
 interface Customer {
   id: number;
@@ -259,120 +260,44 @@ export default function WorkspaceCustomersPage() {
         <p className="text-center text-slate-400 py-12">Nenhum cliente cadastrado.</p>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl max-h-[90vh] overflow-y-auto"
-          >
-            <h3 className="text-lg font-semibold text-white mb-4">Novo cliente</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Nome *</label>
-                <input
-                  type="text"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                />
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo cliente">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="modal-label">Nome *</label>
+            <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">E-mail *</label>
+            <input type="email" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Telefone</label>
+            <input type="text" value={formPhone} onChange={(e) => setFormPhone(e.target.value)} className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Endereço</label>
+            <div className="space-y-2">
+              <input type="text" placeholder="Rua" value={formStreet} onChange={(e) => setFormStreet(e.target.value)} className="modal-input" />
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder="Número" value={formNumber} onChange={(e) => setFormNumber(e.target.value)} className="modal-input" />
+                <input type="text" placeholder="CEP" value={formPostalCode} onChange={(e) => setFormPostalCode(e.target.value)} className="modal-input" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">E-mail *</label>
-                <input
-                  type="email"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                />
+              <input type="text" placeholder="Complemento" value={formComplement} onChange={(e) => setFormComplement(e.target.value)} className="modal-input" />
+              <div className="grid grid-cols-2 gap-2">
+                <input type="text" placeholder="Cidade" value={formCity} onChange={(e) => setFormCity(e.target.value)} className="modal-input" />
+                <input type="text" placeholder="Estado" value={formState} onChange={(e) => setFormState(e.target.value)} className="modal-input" />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Telefone</label>
-                <input
-                  type="text"
-                  value={formPhone}
-                  onChange={(e) => setFormPhone(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Endereço</label>
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    placeholder="Rua"
-                    value={formStreet}
-                    onChange={(e) => setFormStreet(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      placeholder="Número"
-                      value={formNumber}
-                      onChange={(e) => setFormNumber(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="CEP"
-                      value={formPostalCode}
-                      onChange={(e) => setFormPostalCode(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                    />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Complemento"
-                    value={formComplement}
-                    onChange={(e) => setFormComplement(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      placeholder="Cidade"
-                      value={formCity}
-                      onChange={(e) => setFormCity(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Estado"
-                      value={formState}
-                      onChange={(e) => setFormState(e.target.value)}
-                      className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/10 text-slate-300 hover:bg-white/20 font-medium"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2 font-medium"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Criar
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">Cancelar</button>
+            <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              Criar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

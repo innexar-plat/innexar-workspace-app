@@ -12,6 +12,7 @@ import {
 } from "@/lib/workspace-api";
 import { WORKSPACE_API_PATHS } from "@/lib/workspace-api-paths";
 import { TableSkeleton } from "@/components/table-skeleton";
+import { Modal } from '@/components/ui/modal';
 
 interface Project {
   id: number;
@@ -179,76 +180,35 @@ export default function WorkspaceProjectsPage() {
         <p className="text-center text-slate-400 py-12">Nenhum projeto.</p>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md"
-          >
-            <h3 className="text-lg font-semibold text-white mb-4">
-              {editingId ? 'Editar projeto' : 'Novo projeto'}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {!editingId && (
-                <div>
-                  <label className="block text-sm text-slate-400 mb-1">Customer ID</label>
-                  <input
-                    type="number"
-                    value={formCustomerId}
-                    onChange={(e) => setFormCustomerId(e.target.value)}
-                    required
-                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                  />
-                </div>
-              )}
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Status</label>
-                <select
-                  value={formStatus}
-                  onChange={(e) => setFormStatus(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="active">active</option>
-                  <option value="delivered">delivered</option>
-                  <option value="cancelled">cancelled</option>
-                </select>
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingId ? 'Salvar' : 'Criar'}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editingId ? 'Editar projeto' : 'Novo projeto'}>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {!editingId && (
+            <div>
+              <label className="modal-label">Customer ID</label>
+              <input type="number" value={formCustomerId} onChange={(e) => setFormCustomerId(e.target.value)} required className="modal-input" />
+            </div>
+          )}
+          <div>
+            <label className="modal-label">Nome</label>
+            <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Status</label>
+            <select value={formStatus} onChange={(e) => setFormStatus(e.target.value)} className="modal-input">
+              <option value="active">active</option>
+              <option value="delivered">delivered</option>
+              <option value="cancelled">cancelled</option>
+            </select>
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">Cancelar</button>
+            <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {editingId ? 'Salvar' : 'Criar'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

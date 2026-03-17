@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, CreditCard } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
+import { Modal } from '@/components/ui/modal';
 
 interface PricePlan {
   id: number;
@@ -153,96 +154,75 @@ export default function WorkspaceBillingPricePlansPage() {
         <p className="text-center text-slate-400 py-12">Nenhum plano. Crie produtos primeiro.</p>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
-          >
-            <h3 className="text-lg font-semibold text-white mb-4">Novo plano de preco</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Produto</label>
-                <select
-                  value={formProductId}
-                  onChange={(e) => setFormProductId(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  {products.map((pr) => (
-                    <option key={pr.id} value={pr.id}>
-                      {pr.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Nome</label>
-                <input
-                  type="text"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Intervalo</label>
-                <select
-                  value={formInterval}
-                  onChange={(e) => setFormInterval(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="month">month</option>
-                  <option value="year">year</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Valor</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={formAmount}
-                  onChange={(e) => setFormAmount(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-slate-400 mb-1">Moeda</label>
-                <input
-                  type="text"
-                  value={formCurrency}
-                  onChange={(e) => setFormCurrency(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Criar
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo plano de preço">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="modal-label">Produto</label>
+            <select
+              value={formProductId}
+              onChange={(e) => setFormProductId(e.target.value)}
+              required
+              className="modal-input"
+            >
+              {products.map((pr) => (
+                <option key={pr.id} value={pr.id}>
+                  {pr.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="modal-label">Nome</label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              required
+              className="modal-input"
+            />
+          </div>
+          <div>
+            <label className="modal-label">Intervalo</label>
+            <select
+              value={formInterval}
+              onChange={(e) => setFormInterval(e.target.value)}
+              className="modal-input"
+            >
+              <option value="month">month</option>
+              <option value="year">year</option>
+            </select>
+          </div>
+          <div>
+            <label className="modal-label">Valor</label>
+            <input
+              type="number"
+              step="0.01"
+              value={formAmount}
+              onChange={(e) => setFormAmount(e.target.value)}
+              required
+              className="modal-input"
+            />
+          </div>
+          <div>
+            <label className="modal-label">Moeda</label>
+            <input
+              type="text"
+              value={formCurrency}
+              onChange={(e) => setFormCurrency(e.target.value)}
+              className="modal-input"
+            />
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">
+              Cancelar
+            </button>
+            <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              Criar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

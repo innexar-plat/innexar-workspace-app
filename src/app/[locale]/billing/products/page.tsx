@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, Package, Pencil, Server, CreditCard } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
+import { Modal } from '@/components/ui/modal';
 
 const PROVISIONING_TYPES = [
   { value: '', label: 'Nenhum (produto simples)' },
@@ -376,92 +377,84 @@ export default function WorkspaceBillingProductsPage() {
         <p className="text-center text-slate-400 py-12">Nenhum produto.</p>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto"
-          >
-            <h3 className="text-lg font-semibold text-white mb-4">
-              {editingId ? 'Editar produto' : 'Novo produto'}
-            </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Nome do produto</label>
-                <input
-                  type="text"
-                  value={formName}
-                  onChange={(e) => setFormName(e.target.value)}
-                  required
-                  placeholder="Ex.: Hospedagem Básica, Licença SaaS, Consultoria"
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Descrição</label>
-                <textarea
-                  value={formDescription}
-                  onChange={(e) => setFormDescription(e.target.value)}
-                  rows={4}
-                  placeholder="Descreva o produto para o catálogo e para o cliente (ex.: recursos, limites, o que está incluso)."
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
-                />
-              </div>
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formIsActive}
-                    onChange={(e) => setFormIsActive(e.target.checked)}
-                    className="rounded bg-white/5 border-white/10 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm font-medium text-slate-300">Ativo (visível no catálogo e disponível para assinatura)</span>
-                </label>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Tipo de provisionamento</label>
-                <select
-                  value={formProvisioningType}
-                  onChange={(e) => {
-                    setFormProvisioningType(e.target.value);
-                    if (e.target.value !== 'hestia_hosting') setFormHestiaPackage('');
-                  }}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                >
-                  {PROVISIONING_TYPES.map(({ value, label }) => (
-                    <option key={value || 'none'} value={value} className="bg-slate-800 text-white">
-                      {label}
-                    </option>
-                  ))}
-                </select>
-                <p className="text-xs text-slate-500 mt-1">Produto simples = sem provisionamento automático. Hestia = cria conta e domínio no painel ao assinar.</p>
-              </div>
-              {formProvisioningType === 'hestia_hosting' && (
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1 flex items-center gap-2">
-                    <Server className="w-4 h-4 text-blue-400" />
-                    Pacote Hestia
-                  </label>
-                  <select
-                    value={formHestiaPackage}
-                    onChange={(e) => setFormHestiaPackage(e.target.value)}
-                    disabled={hestiaPackagesLoading}
-                    className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
-                  >
-                    <option value="" className="bg-slate-800">Selecione o pacote</option>
-                    {hestiaPackages.map((pkg) => (
-                      <option key={pkg.name} value={pkg.name} className="bg-slate-800">
-                        {pkg.name}
-                      </option>
-                    ))}
-                  </select>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editingId ? 'Editar produto' : 'Novo produto'}
+        maxWidth="max-w-md"
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="modal-label">Nome do produto</label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              required
+              placeholder="Ex.: Hospedagem Básica, Licença SaaS, Consultoria"
+              className="modal-input"
+            />
+          </div>
+          <div>
+            <label className="modal-label">Descrição</label>
+            <textarea
+              value={formDescription}
+              onChange={(e) => setFormDescription(e.target.value)}
+              rows={4}
+              placeholder="Descreva o produto para o catálogo e para o cliente (ex.: recursos, limites, o que está incluso)."
+              className="modal-textarea"
+            />
+          </div>
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formIsActive}
+                onChange={(e) => setFormIsActive(e.target.checked)}
+                className="rounded border-[var(--border)] bg-[var(--surface)] text-[var(--cyan-500)] focus:ring-[var(--cyan-500)]"
+              />
+              <span className="modal-label !mb-0">Ativo (visível no catálogo e disponível para assinatura)</span>
+            </label>
+          </div>
+          <div>
+            <label className="modal-label">Tipo de provisionamento</label>
+            <select
+              value={formProvisioningType}
+              onChange={(e) => {
+                setFormProvisioningType(e.target.value);
+                if (e.target.value !== 'hestia_hosting') setFormHestiaPackage('');
+              }}
+              className="modal-input"
+            >
+              {PROVISIONING_TYPES.map(({ value, label }) => (
+                <option key={value || 'none'} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+            <p className="modal-muted mt-1">Produto simples = sem provisionamento automático. Hestia = cria conta e domínio no painel ao assinar.</p>
+          </div>
+          {formProvisioningType === 'hestia_hosting' && (
+            <div>
+              <label className="modal-label flex items-center gap-2">
+                <Server className="w-4 h-4 text-[var(--cyan-500)]" />
+                Pacote Hestia
+              </label>
+              <select
+                value={formHestiaPackage}
+                onChange={(e) => setFormHestiaPackage(e.target.value)}
+                disabled={hestiaPackagesLoading}
+                className="modal-input disabled:opacity-50"
+              >
+                <option value="">Selecione o pacote</option>
+                {hestiaPackages.map((pkg) => (
+                  <option key={pkg.name} value={pkg.name}>
+                    {pkg.name}
+                  </option>
+                ))}
+              </select>
                   {hestiaPackagesLoading && (
-                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                    <p className="modal-muted mt-1 flex items-center gap-1">
                       <Loader2 className="w-3 h-3 animate-spin" /> Carregando pacotes do Hestia…
                     </p>
                   )}
@@ -469,106 +462,63 @@ export default function WorkspaceBillingProductsPage() {
                     <p className="text-xs text-amber-500 mt-1">Nenhum pacote encontrado. Verifique a integração Hestia em Config → Integrações.</p>
                   )}
                   {!hestiaPackagesLoading && hestiaPackages.length > 0 && !formHestiaPackage && (
-                    <p className="text-xs text-slate-500 mt-1">Se não escolher, será usado o pacote padrão das configurações Hestia.</p>
+                    <p className="modal-muted mt-1">Se não escolher, será usado o pacote padrão das configurações Hestia.</p>
                   )}
                 </div>
               )}
               {!editingId && (
                 <>
-                  <div className="border-t border-white/10 pt-4 mt-2">
-                    <p className="text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
-                      <CreditCard className="w-4 h-4 text-blue-400" />
+                  <div className="modal-border-t pt-4 mt-2">
+                    <p className="modal-label flex items-center gap-2 !mb-2">
+                      <CreditCard className="w-4 h-4 text-[var(--cyan-500)]" />
                       Plano de preço (opcional)
                     </p>
-                    <p className="text-xs text-slate-500 mb-3">Preencha para criar um plano junto com o produto. Depois você pode adicionar mais planos ao editar.</p>
+                    <p className="modal-muted mb-3">Preencha para criar um plano junto com o produto. Depois você pode adicionar mais planos ao editar.</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="col-span-2 sm:col-span-1">
-                        <label className="block text-xs text-slate-400 mb-1">Nome do plano</label>
-                        <input
-                          type="text"
-                          value={formPlanName}
-                          onChange={(e) => setFormPlanName(e.target.value)}
-                          placeholder="Ex.: Mensal"
-                          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder-slate-500"
-                        />
+                        <label className="modal-label">Nome do plano</label>
+                        <input type="text" value={formPlanName} onChange={(e) => setFormPlanName(e.target.value)} placeholder="Ex.: Mensal" className="modal-input text-sm" />
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Período</label>
-                        <select
-                          value={formPlanInterval}
-                          onChange={(e) => setFormPlanInterval(e.target.value as 'month' | 'year')}
-                          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
-                        >
+                        <label className="modal-label">Período</label>
+                        <select value={formPlanInterval} onChange={(e) => setFormPlanInterval(e.target.value as 'month' | 'year')} className="modal-input text-sm">
                           {INTERVAL_OPTIONS.map(({ value, label }) => (
-                            <option key={value} value={value} className="bg-slate-800">{label}</option>
+                            <option key={value} value={value}>{label}</option>
                           ))}
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Preço (R$)</label>
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={formPlanAmount}
-                          onChange={(e) => setFormPlanAmount(e.target.value.replace(/[^0-9,.]/g, ''))}
-                          placeholder="0,00"
-                          className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder-slate-500"
-                        />
+                        <label className="modal-label">Preço (R$)</label>
+                        <input type="text" inputMode="decimal" value={formPlanAmount} onChange={(e) => setFormPlanAmount(e.target.value.replace(/[^0-9,.]/g, ''))} placeholder="0,00" className="modal-input text-sm" />
                       </div>
                     </div>
                   </div>
                 </>
               )}
               {editingId && productPlans.length > 0 && (
-                <div className="border-t border-white/10 pt-4 mt-2">
-                  <p className="text-sm font-medium text-slate-300 mb-2 flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-blue-400" />
+                <div className="modal-border-t pt-4 mt-2">
+                  <p className="modal-label flex items-center gap-2 !mb-2">
+                    <CreditCard className="w-4 h-4 text-[var(--cyan-500)]" />
                     Planos de preço
                   </p>
                   <ul className="space-y-2 mb-3">
                     {productPlans.map((pl) => (
-                      <li key={pl.id} className="text-sm text-slate-400">
+                      <li key={pl.id} className="text-sm modal-muted">
                         {editingPlanId === pl.id ? (
-                          <div className="flex flex-wrap items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
-                            <input
-                              type="text"
-                              value={editPlanName}
-                              onChange={(e) => setEditPlanName(e.target.value)}
-                              placeholder="Nome"
-                              className="flex-1 min-w-[80px] px-2 py-1.5 rounded bg-white/5 border border-white/10 text-white text-sm"
-                            />
-                            <select
-                              value={editPlanInterval}
-                              onChange={(e) => setEditPlanInterval(e.target.value as 'month' | 'year')}
-                              className="px-2 py-1.5 rounded bg-white/5 border border-white/10 text-white text-sm"
-                            >
+                          <div className="flex flex-wrap items-center gap-2 p-2 rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+                            <input type="text" value={editPlanName} onChange={(e) => setEditPlanName(e.target.value)} placeholder="Nome" className="flex-1 min-w-[80px] modal-input text-sm py-1.5" />
+                            <select value={editPlanInterval} onChange={(e) => setEditPlanInterval(e.target.value as 'month' | 'year')} className="modal-input text-sm py-1.5 px-2">
                               {INTERVAL_OPTIONS.map(({ value, label }) => (
-                                <option key={value} value={value} className="bg-slate-800">{label}</option>
+                                <option key={value} value={value}>{label}</option>
                               ))}
                             </select>
-                            <input
-                              type="text"
-                              inputMode="decimal"
-                              value={editPlanAmount}
-                              onChange={(e) => setEditPlanAmount(e.target.value.replace(/[^0-9,.]/g, ''))}
-                              placeholder="R$"
-                              className="w-20 px-2 py-1.5 rounded bg-white/5 border border-white/10 text-white text-sm"
-                            />
+                            <input type="text" inputMode="decimal" value={editPlanAmount} onChange={(e) => setEditPlanAmount(e.target.value.replace(/[^0-9,.]/g, ''))} placeholder="R$" className="w-20 modal-input text-sm py-1.5 px-2" />
                             <div className="flex gap-1">
-                              <button
-                                type="button"
-                                onClick={() => handleSavePlan()}
-                                disabled={savingPlan}
-                                className="px-2 py-1 rounded bg-blue-500/80 text-white text-xs hover:bg-blue-500 disabled:opacity-50 flex items-center gap-1"
-                              >
+                              <button type="button" onClick={() => handleSavePlan()} disabled={savingPlan} className="modal-btn-primary text-xs py-1 px-2 flex items-center gap-1">
                                 {savingPlan && <Loader2 className="w-3 h-3 animate-spin" />}
                                 Salvar
                               </button>
-                              <button
-                                type="button"
-                                onClick={() => cancelEditPlan()}
-                                className="px-2 py-1 rounded bg-white/10 text-slate-300 text-xs hover:bg-white/15"
-                              >
+                              <button type="button" onClick={() => cancelEditPlan()} className="modal-btn-secondary text-xs py-1 px-2">
                                 Cancelar
                               </button>
                             </div>
@@ -577,13 +527,8 @@ export default function WorkspaceBillingProductsPage() {
                           <div className="flex justify-between items-center gap-2">
                             <span>{pl.name}</span>
                             <span className="flex items-center gap-2">
-                              <span className="text-white">R$ {Number(pl.amount).toFixed(2).replace('.', ',')} / {pl.interval === 'year' ? 'ano' : 'mês'}</span>
-                              <button
-                                type="button"
-                                onClick={() => startEditPlan(pl)}
-                                className="p-1 rounded text-slate-400 hover:text-blue-400 hover:bg-white/10"
-                                title="Editar plano"
-                              >
+                              <span style={{ color: 'var(--foreground)' }}>R$ {Number(pl.amount).toFixed(2).replace('.', ',')} / {pl.interval === 'year' ? 'ano' : 'mês'}</span>
+                              <button type="button" onClick={() => startEditPlan(pl)} className="p-1 rounded hover:bg-[var(--border-muted)]" style={{ color: 'var(--foreground-muted)' }} title="Editar plano">
                                 <Pencil className="w-3.5 h-3.5" />
                               </button>
                             </span>
@@ -595,72 +540,40 @@ export default function WorkspaceBillingProductsPage() {
                 </div>
               )}
               {editingId && (
-                <div className="border-t border-white/10 pt-4 mt-2 space-y-3">
-                  <p className="text-sm font-medium text-slate-300">Adicionar plano</p>
+                <div className="modal-border-t pt-4 mt-2 space-y-3">
+                  <p className="modal-label !mb-0">Adicionar plano</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="col-span-2 sm:col-span-1">
-                      <input
-                        type="text"
-                        value={addPlanName}
-                        onChange={(e) => setAddPlanName(e.target.value)}
-                        placeholder="Nome (ex.: Anual)"
-                        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder-slate-500"
-                      />
+                      <input type="text" value={addPlanName} onChange={(e) => setAddPlanName(e.target.value)} placeholder="Nome (ex.: Anual)" className="modal-input text-sm" />
                     </div>
                     <div>
-                      <select
-                        value={addPlanInterval}
-                        onChange={(e) => setAddPlanInterval(e.target.value as 'month' | 'year')}
-                        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm"
-                      >
+                      <select value={addPlanInterval} onChange={(e) => setAddPlanInterval(e.target.value as 'month' | 'year')} className="modal-input text-sm">
                         {INTERVAL_OPTIONS.map(({ value, label }) => (
-                          <option key={value} value={value} className="bg-slate-800">{label}</option>
+                          <option key={value} value={value}>{label}</option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={addPlanAmount}
-                        onChange={(e) => setAddPlanAmount(e.target.value.replace(/[^0-9,.]/g, ''))}
-                        placeholder="Preço R$"
-                        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-white text-sm placeholder-slate-500"
-                      />
+                      <input type="text" inputMode="decimal" value={addPlanAmount} onChange={(e) => setAddPlanAmount(e.target.value.replace(/[^0-9,.]/g, ''))} placeholder="Preço R$" className="modal-input text-sm" />
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleAddPlan()}
-                    disabled={addingPlan || !addPlanAmount.trim()}
-                    className="text-sm px-3 py-1.5 rounded-lg bg-white/10 text-slate-300 hover:bg-white/15 disabled:opacity-50 flex items-center gap-1"
-                  >
+                  <button type="button" onClick={() => handleAddPlan()} disabled={addingPlan || !addPlanAmount.trim()} className="modal-btn-secondary text-sm py-1.5 px-3 disabled:opacity-50 flex items-center gap-1">
                     {addingPlan && <Loader2 className="w-3 h-3 animate-spin" />}
                     Adicionar plano
                   </button>
                 </div>
               )}
-              <div className="flex gap-2 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10"
-                >
+              <div className="modal-actions">
+                <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2"
-                >
+                <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {editingId ? 'Salvar' : 'Criar'}
                 </button>
               </div>
             </form>
-          </motion.div>
-        </div>
-      )}
+      </Modal>
     </div>
   );
 }

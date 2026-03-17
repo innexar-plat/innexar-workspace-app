@@ -269,7 +269,7 @@ export function PaymentBrickModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70" onClick={handleClose}>
+    <div className="modal-overlay" onClick={handleClose} role="dialog" aria-modal="true">
       <div
         className="rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto"
         style={{ background: "var(--card)", border: "1px solid var(--border)", color: "var(--foreground)" }}
@@ -323,7 +323,7 @@ export function PaymentBrickModal({
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 min-h-[44px]"
+                className="modal-btn-primary w-full min-h-[44px]"
               >
                 Fechar
               </button>

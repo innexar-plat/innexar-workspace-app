@@ -15,7 +15,6 @@ import {
   Plus,
   Receipt,
   CheckCircle,
-  X,
   Copy,
   Trash2,
 } from 'lucide-react';
@@ -25,6 +24,7 @@ import {
   parseWorkspaceError,
 } from "@/lib/workspace-api";
 import { WORKSPACE_API_PATHS } from "@/lib/workspace-api-paths";
+import { Modal } from '@/components/ui/modal';
 
 interface Customer {
   id: number;
@@ -516,33 +516,20 @@ export default function WorkspaceCustomerDetailPage() {
         </div>
 
         {showDeleteConfirm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-xl">
-              <h3 className="text-lg font-semibold text-white mb-2">Excluir cliente</h3>
-              <p className="text-slate-400 text-sm mb-6">
-                Tem certeza? Esta ação não pode ser desfeita. O cliente e dados associados serão removidos.
-              </p>
-              <div className="flex gap-3 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  disabled={deleting}
-                  className="px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 text-white font-medium disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDeleteCustomer}
-                  disabled={deleting}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium disabled:opacity-50"
-                >
-                  {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                  Excluir
-                </button>
-              </div>
+          <Modal open onClose={() => setShowDeleteConfirm(false)} title="Excluir cliente">
+            <p className="modal-muted mb-6">
+              Tem certeza? Esta ação não pode ser desfeita. O cliente e dados associados serão removidos.
+            </p>
+            <div className="modal-actions">
+              <button type="button" onClick={() => setShowDeleteConfirm(false)} disabled={deleting} className="modal-btn-secondary disabled:opacity-50">
+                Cancelar
+              </button>
+              <button type="button" onClick={handleDeleteCustomer} disabled={deleting} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium disabled:opacity-50">
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                Excluir
+              </button>
             </div>
-          </div>
+          </Modal>
         )}
 
         {genPassword && (
@@ -806,162 +793,89 @@ export default function WorkspaceCustomerDetailPage() {
       </div>
 
       {/* Modal Adicionar assinatura */}
-      {showSubModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Adicionar assinatura</h3>
-              <button type="button" onClick={() => setShowSubModal(false)} className="p-2 text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleAddSubscription} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Produto</label>
-                <select
-                  value={subProductId}
-                  onChange={(e) => {
-                    setSubProductId(e.target.value ? Number(e.target.value) : '');
-                    setSubPlanId('');
-                  }}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="">Selecione</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Plano</label>
-                <select
-                  value={subPlanId}
-                  onChange={(e) => setSubPlanId(e.target.value ? Number(e.target.value) : '')}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="">Selecione</option>
-                  {typeof subProductId === 'number' && products.find((p) => p.id === subProductId)?.price_plans?.map((pp) => (
-                    <option key={pp.id} value={pp.id}>{pp.name} ({pp.interval}, {pp.currency} {pp.amount})</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Status</label>
-                <select
-                  value={subStatus}
-                  onChange={(e) => setSubStatus(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="inactive">Inativo</option>
-                  <option value="active">Ativo</option>
-                  <option value="suspended">Suspenso</option>
-                  <option value="cancelled">Cancelado</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Data início (opcional)</label>
-                <input
-                  type="date"
-                  value={subStartDate}
-                  onChange={(e) => setSubStartDate(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Próximo vencimento (opcional)</label>
-                <input
-                  type="date"
-                  value={subNextDueDate}
-                  onChange={(e) => setSubNextDueDate(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button type="button" onClick={() => setShowSubModal(false)} className="flex-1 px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 text-white font-medium">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={subSaving} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium disabled:opacity-50">
-                  {subSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Criar
-                </button>
-              </div>
-            </form>
+      <Modal open={showSubModal} onClose={() => setShowSubModal(false)} title="Adicionar assinatura">
+        <form onSubmit={handleAddSubscription} className="space-y-4">
+          <div>
+            <label className="modal-label">Produto</label>
+            <select value={subProductId} onChange={(e) => { setSubProductId(e.target.value ? Number(e.target.value) : ''); setSubPlanId(''); }} required className="modal-input">
+              <option value="">Selecione</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
           </div>
-        </div>
-      )}
+          <div>
+            <label className="modal-label">Plano</label>
+            <select value={subPlanId} onChange={(e) => setSubPlanId(e.target.value ? Number(e.target.value) : '')} required className="modal-input">
+              <option value="">Selecione</option>
+              {typeof subProductId === 'number' && products.find((p) => p.id === subProductId)?.price_plans?.map((pp) => (
+                <option key={pp.id} value={pp.id}>{pp.name} ({pp.interval}, {pp.currency} {pp.amount})</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="modal-label">Status</label>
+            <select value={subStatus} onChange={(e) => setSubStatus(e.target.value)} className="modal-input">
+              <option value="inactive">Inativo</option>
+              <option value="active">Ativo</option>
+              <option value="suspended">Suspenso</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </div>
+          <div>
+            <label className="modal-label">Data início (opcional)</label>
+            <input type="date" value={subStartDate} onChange={(e) => setSubStartDate(e.target.value)} className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Próximo vencimento (opcional)</label>
+            <input type="date" value={subNextDueDate} onChange={(e) => setSubNextDueDate(e.target.value)} className="modal-input" />
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setShowSubModal(false)} className="modal-btn-secondary flex-1">Cancelar</button>
+            <button type="submit" disabled={subSaving} className="modal-btn-primary flex-1 flex items-center justify-center gap-2">
+              {subSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Criar
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Modal Criar fatura */}
-      {showInvModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white">Criar fatura</h3>
-              <button type="button" onClick={() => setShowInvModal(false)} className="p-2 text-slate-400 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleCreateInvoice} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Assinatura (opcional)</label>
-                <select
-                  value={invSubscriptionId === '' ? '' : invSubscriptionId}
-                  onChange={(e) => setInvSubscriptionId(e.target.value ? Number(e.target.value) : '')}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="">Nenhuma</option>
-                  {subscriptions.map((s) => (
-                    <option key={s.id} value={s.id}>{productName(s.product_id)} - #{s.id}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Vencimento</label>
-                <input
-                  type="date"
-                  value={invDueDate}
-                  onChange={(e) => setInvDueDate(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Total</label>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={invTotal}
-                  onChange={(e) => setInvTotal(e.target.value)}
-                  placeholder="0.00"
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Moeda</label>
-                <select
-                  value={invCurrency}
-                  onChange={(e) => setInvCurrency(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white"
-                >
-                  <option value="BRL">BRL</option>
-                  <option value="USD">USD</option>
-                </select>
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button type="button" onClick={() => setShowInvModal(false)} className="flex-1 px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 text-white font-medium">
-                  Cancelar
-                </button>
-                <button type="submit" disabled={invSaving} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-medium disabled:opacity-50">
-                  {invSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                  Criar
-                </button>
-              </div>
-            </form>
+      <Modal open={showInvModal} onClose={() => setShowInvModal(false)} title="Criar fatura">
+        <form onSubmit={handleCreateInvoice} className="space-y-4">
+          <div>
+            <label className="modal-label">Assinatura (opcional)</label>
+            <select value={invSubscriptionId === '' ? '' : invSubscriptionId} onChange={(e) => setInvSubscriptionId(e.target.value ? Number(e.target.value) : '')} className="modal-input">
+              <option value="">Nenhuma</option>
+              {subscriptions.map((s) => (
+                <option key={s.id} value={s.id}>{productName(s.product_id)} - #{s.id}</option>
+              ))}
+            </select>
           </div>
-        </div>
-      )}
+          <div>
+            <label className="modal-label">Vencimento</label>
+            <input type="date" value={invDueDate} onChange={(e) => setInvDueDate(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Total</label>
+            <input type="text" inputMode="decimal" value={invTotal} onChange={(e) => setInvTotal(e.target.value)} placeholder="0.00" required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Moeda</label>
+            <select value={invCurrency} onChange={(e) => setInvCurrency(e.target.value)} className="modal-input">
+              <option value="BRL">BRL</option>
+              <option value="USD">USD</option>
+            </select>
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setShowInvModal(false)} className="modal-btn-secondary flex-1">Cancelar</button>
+            <button type="submit" disabled={invSaving} className="modal-btn-primary flex-1 flex items-center justify-center gap-2">
+              {invSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Criar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, Server, Trash2 } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
+import { Modal } from '@/components/ui/modal';
 
 interface DomainItem {
   name: string;
@@ -188,59 +189,43 @@ export default function WorkspaceHestiaDomainsPage() {
       )}
 
       {deleteConfirmDomain && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-lg font-semibold text-white mb-2">Remover domínio</h3>
-            <p className="text-slate-400 text-sm mb-6">
-              Remover domínio &quot;{deleteConfirmDomain}&quot;? Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirmDomain(null)}
-                className="px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 text-white font-medium"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium"
-              >
-                Remover
-              </button>
-            </div>
+        <Modal open onClose={() => setDeleteConfirmDomain(null)} title="Remover domínio">
+          <p className="modal-muted mb-6">
+            Remover domínio &quot;{deleteConfirmDomain}&quot;? Esta ação não pode ser desfeita.
+          </p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setDeleteConfirmDomain(null)} className="modal-btn-secondary">Cancelar</button>
+            <button type="button" onClick={handleDeleteConfirm} className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium">
+              Remover
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
 
       {modalOpen && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setModalOpen(false)}>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={(e) => e.stopPropagation()} className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-white mb-4">Adicionar domínio – {selectedUser}</h3>
-            <form onSubmit={handleAdd} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Domínio</label>
-                <input type="text" value={formDomain} onChange={(e) => setFormDomain(e.target.value)} required className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">IP (opcional)</label>
-                <input type="text" value={formIp} onChange={(e) => setFormIp(e.target.value)} className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Aliases</label>
-                <input type="text" value={formAliases} onChange={(e) => setFormAliases(e.target.value)} className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500" />
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button type="button" onClick={() => setModalOpen(false)} className="px-4 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 font-medium">Cancelar</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2 font-medium">
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Adicionar
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
+        <Modal open onClose={() => setModalOpen(false)} title={`Adicionar domínio – ${selectedUser}`}>
+          <form onSubmit={handleAdd} className="space-y-4">
+            <div>
+              <label className="modal-label">Domínio</label>
+              <input type="text" value={formDomain} onChange={(e) => setFormDomain(e.target.value)} required className="modal-input" />
+            </div>
+            <div>
+              <label className="modal-label">IP (opcional)</label>
+              <input type="text" value={formIp} onChange={(e) => setFormIp(e.target.value)} className="modal-input" />
+            </div>
+            <div>
+              <label className="modal-label">Aliases</label>
+              <input type="text" value={formAliases} onChange={(e) => setFormAliases(e.target.value)} className="modal-input" />
+            </div>
+            <div className="modal-actions">
+              <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">Cancelar</button>
+              <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                Adicionar
+              </button>
+            </div>
+          </form>
+        </Modal>
       )}
     </div>
   );

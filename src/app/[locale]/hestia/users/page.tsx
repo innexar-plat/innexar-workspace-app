@@ -6,6 +6,7 @@ import { useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
 import { Plus, Loader2, AlertCircle, Server, Globe, Trash2, Pause, Play } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
+import { Modal } from '@/components/ui/modal';
 
 interface UserItem {
   name: string;
@@ -205,105 +206,48 @@ export default function WorkspaceHestiaUsersPage() {
       )}
 
       {deleteConfirmUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="bg-slate-800 border border-white/10 rounded-2xl p-6 max-w-md w-full shadow-xl">
-            <h3 className="text-lg font-semibold text-white mb-2">Remover usuário</h3>
-            <p className="text-slate-400 text-sm mb-6">
-              Remover usuário &quot;{deleteConfirmUser}&quot; e dados associados? Esta ação não pode ser desfeita.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirmUser(null)}
-                className="px-4 py-2 rounded-xl bg-slate-600 hover:bg-slate-500 text-white font-medium"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteConfirm}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium"
-              >
-                Remover
-              </button>
-            </div>
+        <Modal open onClose={() => setDeleteConfirmUser(null)} title="Remover usuário">
+          <p className="modal-muted mb-6">
+            Remover usuário &quot;{deleteConfirmUser}&quot; e dados associados? Esta ação não pode ser desfeita.
+          </p>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setDeleteConfirmUser(null)} className="modal-btn-secondary">
+              Cancelar
+            </button>
+            <button type="button" onClick={handleDeleteConfirm} className="px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-medium">
+              Remover
+            </button>
           </div>
-        </div>
+        </Modal>
       )}
 
-      {modalOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={() => setModalOpen(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-slate-900 border border-white/10 rounded-2xl p-6 w-full max-w-md"
-          >
-            <h3 className="text-lg font-semibold text-white mb-4">Novo usuário Hestia</h3>
-            <form onSubmit={handleCreate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Usuário</label>
-                <input
-                  type="text"
-                  value={formUser}
-                  onChange={(e) => setFormUser(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Senha</label>
-                <input
-                  type="password"
-                  value={formPassword}
-                  onChange={(e) => setFormPassword(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">E-mail</label>
-                <input
-                  type="email"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  required
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-400 mb-1">Pacote</label>
-                <input
-                  type="text"
-                  value={formPackage}
-                  onChange={(e) => setFormPackage(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex gap-2 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 font-medium"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 flex items-center gap-2 font-medium"
-                >
-                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-                  Criar
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Novo usuário Hestia">
+        <form onSubmit={handleCreate} className="space-y-4">
+          <div>
+            <label className="modal-label">Usuário</label>
+            <input type="text" value={formUser} onChange={(e) => setFormUser(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Senha</label>
+            <input type="password" value={formPassword} onChange={(e) => setFormPassword(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">E-mail</label>
+            <input type="email" value={formEmail} onChange={(e) => setFormEmail(e.target.value)} required className="modal-input" />
+          </div>
+          <div>
+            <label className="modal-label">Pacote</label>
+            <input type="text" value={formPackage} onChange={(e) => setFormPackage(e.target.value)} className="modal-input" />
+          </div>
+          <div className="modal-actions">
+            <button type="button" onClick={() => setModalOpen(false)} className="modal-btn-secondary">Cancelar</button>
+            <button type="submit" disabled={saving} className="modal-btn-primary flex items-center gap-2">
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              Criar
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

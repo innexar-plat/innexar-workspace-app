@@ -123,3 +123,120 @@ body {
   border-color: rgba(148, 163, 184, 0.4);
 }
 
+/* ---------------------------------------------------------------------------
+   Modal reutilizável — tema claro/escuro coerente
+   Use com <Modal> em src/components/ui/modal.tsx
+--------------------------------------------------------------------------- */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+}
+.modal-panel {
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--foreground);
+  margin-bottom: 1rem;
+}
+.modal-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--foreground-muted);
+  margin-bottom: 0.25rem;
+}
+.modal-input {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 1rem;
+}
+.modal-input::placeholder {
+  color: var(--foreground-muted);
+}
+.modal-input:focus {
+  outline: none;
+  border-color: var(--cyan-500);
+  box-shadow: 0 0 0 2px rgba(14, 175, 191, 0.2);
+}
+.modal-textarea {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 1rem;
+  resize: vertical;
+}
+.modal-textarea::placeholder {
+  color: var(--foreground-muted);
+}
+.modal-textarea:focus {
+  outline: none;
+  border-color: var(--cyan-500);
+  box-shadow: 0 0 0 2px rgba(14, 175, 191, 0.2);
+}
+.modal-border-t {
+  border-top: 1px solid var(--border);
+}
+.modal-muted {
+  color: var(--foreground-muted);
+  font-size: 0.75rem;
+}
+.modal-btn-secondary {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 500;
+  cursor: pointer;
+}
+.modal-btn-secondary:hover {
+  background: var(--border-muted);
+}
+.modal-btn-primary {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--cyan-500);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+.modal-btn-primary:hover:not(:disabled) {
+  background: var(--cyan-600);
+}
+.modal-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.5rem;
+}
+
