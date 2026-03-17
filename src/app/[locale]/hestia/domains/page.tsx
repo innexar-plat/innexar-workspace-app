@@ -31,7 +31,7 @@ export default function WorkspaceHestiaDomainsPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/hestia/users', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then((list: { name: string }[]) => setUsers(list.map((u) => ({ name: u.name }))))
@@ -40,17 +40,17 @@ export default function WorkspaceHestiaDomainsPage() {
   }, []);
 
   useEffect(() => {
-    if (userParam) setSelectedUser(userParam);
+    if (userParam) queueMicrotask(() => setSelectedUser(userParam));
   }, [userParam]);
 
   useEffect(() => {
     if (!selectedUser) {
-      setDomains([]);
+      queueMicrotask(() => setDomains([]));
       return;
     }
     const token = getStaffToken();
     if (!token) return;
-    setLoadingDomains(true);
+    queueMicrotask(() => setLoadingDomains(true));
     workspaceFetch(`/api/workspace/hestia/users/${encodeURIComponent(selectedUser)}/domains`, { token })
       .then((r) => (r.ok ? r.json() : []))
       .then(setDomains)

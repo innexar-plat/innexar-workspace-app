@@ -36,7 +36,7 @@ export default function WorkspaceBillingPricePlansPage() {
   const load = () => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     Promise.all([
       workspaceFetch('/api/workspace/billing/price-plans', { token }).then((r) =>
         r.ok ? r.json() : []

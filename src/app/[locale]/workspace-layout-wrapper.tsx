@@ -26,11 +26,11 @@ export default function WorkspaceLayoutWrapper({
 
   useEffect(() => {
     if (!isWorkspaceApi) {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
       return;
     }
     if (isPublicAuthPage) {
-      setLoading(false);
+      queueMicrotask(() => setLoading(false));
       return;
     }
     const token =
@@ -39,7 +39,7 @@ export default function WorkspaceLayoutWrapper({
       router.push(`/${locale}/login`);
       return;
     }
-    setLoading(false);
+    queueMicrotask(() => setLoading(false));
   }, [router, locale, isPublicAuthPage, isWorkspaceApi]);
 
   if (loading) {

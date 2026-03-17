@@ -35,7 +35,7 @@ export default function WorkspaceProjectsPage() {
 
   const load = useCallback((signal?: AbortSignal) => {
     if (!getStaffToken()) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetchStaff(WORKSPACE_API_PATHS.PROJECTS.LIST, { signal })
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {

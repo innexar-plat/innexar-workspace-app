@@ -30,7 +30,7 @@ export default function WorkspaceCrmContactsPage() {
   const load = () => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/crm/contacts', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then(setContacts)

@@ -31,7 +31,7 @@ export default function WorkspaceBriefingsPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     const url = projectIdParam
       ? `/api/workspace/briefings?project_id=${encodeURIComponent(projectIdParam)}`
       : '/api/workspace/briefings';

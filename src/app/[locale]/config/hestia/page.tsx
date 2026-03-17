@@ -12,7 +12,7 @@ interface HestiaSettings {
 }
 
 export default function WorkspaceConfigHestiaPage() {
-  const [settings, setSettings] = useState<HestiaSettings | null>(null);
+  const [hestiaSettings, setSettings] = useState<HestiaSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -23,7 +23,7 @@ export default function WorkspaceConfigHestiaPage() {
   const load = () => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/config/hestia/settings', { token })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: HestiaSettings | null) => {
@@ -93,6 +93,8 @@ export default function WorkspaceConfigHestiaPage() {
         <div className="flex justify-center py-12">
           <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
         </div>
+      ) : hestiaSettings === null && !error ? (
+        <p className="text-slate-400">Nenhuma configuração encontrada.</p>
       ) : (
         <motion.div
           initial={{ opacity: 0, y: 10 }}

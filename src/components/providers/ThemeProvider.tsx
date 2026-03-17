@@ -45,9 +45,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initial = getInitialTheme();
-    setThemeState(initial);
-    applyTheme(initial);
-    setMounted(true);
+    queueMicrotask(() => {
+      setThemeState(initial);
+      applyTheme(initial);
+      setMounted(true);
+    });
   }, []);
 
   const setTheme = useCallback((next: Theme) => {

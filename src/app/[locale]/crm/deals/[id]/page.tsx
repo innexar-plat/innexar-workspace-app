@@ -34,7 +34,7 @@ export default function WorkspaceCrmDealDetailPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token || Number.isNaN(id)) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch(WORKSPACE_API_PATHS.CRM.DEAL_DETAIL(id), { token })
       .then((r) => {
         if (!r.ok) {

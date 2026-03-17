@@ -19,8 +19,10 @@ export default function WorkspaceHestiaOverviewPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
-    setError('');
+    queueMicrotask(() => {
+      setLoading(true);
+      setError('');
+    });
     workspaceFetch('/api/workspace/hestia/overview', { token })
       .then((r) => (r.ok ? r.json() : null))
       .then(setOverview)

@@ -36,19 +36,10 @@ export default function WorkspaceTicketDetailPage() {
   const [newBody, setNewBody] = useState('');
   const [sending, setSending] = useState(false);
 
-  const loadTicket = () => {
-    const token = getStaffToken();
-    if (!token || !id) return;
-    workspaceFetch(`/api/workspace/support/tickets/${id}`, { token })
-      .then((r) => (r.ok ? r.json() : null))
-      .then(setTicket)
-      .catch(() => setTicket(null));
-  };
-
   useEffect(() => {
     const token = getStaffToken();
     if (!token || !id) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch(`/api/workspace/support/tickets/${id}`, { token })
       .then((r) => {
         if (!r.ok) throw new Error('Not found');

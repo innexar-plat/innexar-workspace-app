@@ -36,7 +36,7 @@ export default function WorkspaceBillingInvoicesPage() {
   const load = useCallback(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/billing/invoices', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then(setInvoices)

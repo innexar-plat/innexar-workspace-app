@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
-import { Loader2, AlertCircle, FileText, FolderOpen, Download, ArrowLeft } from 'lucide-react';
+import { Loader2, AlertCircle, FolderOpen, Download, ArrowLeft } from 'lucide-react';
 import { workspaceFetch, getStaffToken } from '@/lib/workspace-api';
 
 interface BriefingDetail {
@@ -33,7 +33,7 @@ export default function BriefingDetailPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token || !id) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch(`/api/workspace/briefings/${id}`, { token })
       .then((r) => {
         if (!r.ok) throw new Error('Briefing não encontrado');

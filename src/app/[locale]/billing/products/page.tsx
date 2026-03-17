@@ -76,7 +76,7 @@ export default function WorkspaceBillingProductsPage() {
   const load = () => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/billing/products?with_plans=true', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then((prods: Product[]) => {
@@ -98,7 +98,7 @@ export default function WorkspaceBillingProductsPage() {
   const loadHestiaPackages = () => {
     const token = getStaffToken();
     if (!token) return;
-    setHestiaPackagesLoading(true);
+    queueMicrotask(() => setHestiaPackagesLoading(true));
     workspaceFetch('/api/workspace/hestia/packages', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then((list: HestiaPackageItem[]) => Array.isArray(list) ? list : [])
@@ -109,7 +109,7 @@ export default function WorkspaceBillingProductsPage() {
 
   useEffect(() => {
     if (modalOpen && formProvisioningType === 'hestia_hosting' && hestiaPackages.length === 0 && !hestiaPackagesLoading) {
-      loadHestiaPackages();
+      queueMicrotask(() => loadHestiaPackages());
     }
   }, [modalOpen, formProvisioningType, hestiaPackages.length, hestiaPackagesLoading]);
 

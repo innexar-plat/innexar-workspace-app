@@ -126,7 +126,7 @@ export default function WorkspaceProjectDetailPage() {
 
   useEffect(() => {
     if (!getStaffToken() || !id) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetchStaff(WORKSPACE_API_PATHS.PROJECTS.DETAIL(id))
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
@@ -139,7 +139,7 @@ export default function WorkspaceProjectDetailPage() {
 
   const fetchFiles = useCallback(() => {
     if (!getStaffToken() || !id) return;
-    setFilesLoading(true);
+    queueMicrotask(() => setFilesLoading(true));
     workspaceFetchStaff(WORKSPACE_API_PATHS.PROJECTS.FILES(id))
       .then((r) => (r.ok ? r.json() : []))
       .then(setFiles)
@@ -193,7 +193,7 @@ export default function WorkspaceProjectDetailPage() {
 
   useEffect(() => {
     if (!getStaffToken() || !id) return;
-    setBriefingsLoading(true);
+    queueMicrotask(() => setBriefingsLoading(true));
     workspaceFetchStaff(WORKSPACE_API_PATHS.BRIEFINGS.LIST(id))
       .then((r) => (r.ok ? r.json() : []))
       .then(setBriefings)
@@ -202,7 +202,7 @@ export default function WorkspaceProjectDetailPage() {
 
   const fetchMessages = useCallback(() => {
     if (!getStaffToken() || !id) return;
-    setMessagesLoading(true);
+    queueMicrotask(() => setMessagesLoading(true));
     workspaceFetchStaff(WORKSPACE_API_PATHS.PROJECTS.MESSAGES(id))
       .then((r) => (r.ok ? r.json() : []))
       .then(setMessages)
@@ -211,7 +211,7 @@ export default function WorkspaceProjectDetailPage() {
 
   const fetchModRequests = useCallback(() => {
     if (!getStaffToken() || !id) return;
-    setModRequestsLoading(true);
+    queueMicrotask(() => setModRequestsLoading(true));
     workspaceFetchStaff(
       WORKSPACE_API_PATHS.PROJECTS.MODIFICATION_REQUESTS(id)
     )
@@ -221,7 +221,7 @@ export default function WorkspaceProjectDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    if (project) {
+    if (project?.id) {
       fetchMessages();
       fetchModRequests();
     }

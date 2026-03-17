@@ -18,8 +18,10 @@ export default function WorkspaceHestiaPackagesPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
-    setError('');
+    queueMicrotask(() => {
+      setLoading(true);
+      setError('');
+    });
     workspaceFetch('/api/workspace/hestia/packages', { token })
       .then((r) => {
         if (!r.ok) throw new Error('Falha ao carregar');

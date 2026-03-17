@@ -79,7 +79,7 @@ export function PaymentBrickModal({
     if (!mpPublicKey || !open) return;
     const existing = document.querySelector(`script[src="${MP_SDK_URL}"]`);
     if (existing) {
-      setSdkLoaded(true);
+      queueMicrotask(() => setSdkLoaded(true));
       return;
     }
     const script = document.createElement('script');
@@ -257,7 +257,7 @@ export function PaymentBrickModal({
         controllerRef.current = null;
       }
     };
-  }, [open, sdkLoaded, mpPublicKey, invoice?.id, invoice?.total, payEndpoint, getToken, buildBody, containerId, onSuccess]);
+  }, [open, sdkLoaded, mpPublicKey, invoice, payEndpoint, getToken, buildBody, containerId, onSuccess, appTheme, mode]);
 
   const handleClose = useCallback(() => {
     setResult(null);
@@ -307,6 +307,7 @@ export function PaymentBrickModal({
                 <div className="space-y-2">
                   <p className="text-slate-300 text-sm">Pix: escaneie o QR Code ou copie o código.</p>
                   {result.qr_code_base64 && (
+                    // eslint-disable-next-line @next/next/no-img-element -- data URL (base64); next/image does not support data URIs
                     <img
                       src={`data:image/png;base64,${result.qr_code_base64}`}
                       alt="QR Code Pix"

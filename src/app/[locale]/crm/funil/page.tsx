@@ -49,7 +49,7 @@ export default function WorkspaceCrmFunilPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     Promise.all([
       workspaceFetch(WORKSPACE_API_PATHS.CRM.PIPELINE, { token }).then((r) =>
         r.ok ? r.json() : []

@@ -37,7 +37,7 @@ export default function WorkspaceConfigIntegrationsPage() {
   const load = () => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/config/integrations', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then(setIntegrations)

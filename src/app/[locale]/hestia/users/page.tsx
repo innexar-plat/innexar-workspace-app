@@ -29,7 +29,7 @@ export default function WorkspaceHestiaUsersPage() {
   const load = () => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/hestia/users', { token })
       .then((r) => {
         if (!r.ok) throw new Error('Falha ao carregar');

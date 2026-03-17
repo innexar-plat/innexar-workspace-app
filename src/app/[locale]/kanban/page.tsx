@@ -55,7 +55,7 @@ export default function WorkspaceKanbanPage() {
   useEffect(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     workspaceFetch('/api/workspace/projects', { token })
       .then((r) => (r.ok ? r.json() : []))
       .then(setProjects)

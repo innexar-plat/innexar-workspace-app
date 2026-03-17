@@ -9,7 +9,6 @@ import {
   MessageSquare,
   FolderOpen,
   TrendingUp,
-  Loader2,
   AlertCircle,
 } from "lucide-react";
 import { workspaceFetchStaff } from "@/lib/workspace-api";
@@ -49,8 +48,10 @@ export default function WorkspaceDashboardPage() {
   const [error, setError] = useState("");
 
   const load = useCallback((signal?: AbortSignal) => {
-    setLoading(true);
-    setError("");
+    queueMicrotask(() => {
+      setLoading(true);
+      setError("");
+    });
     Promise.all([
       workspaceFetchStaff(WORKSPACE_API_PATHS.DASHBOARD.SUMMARY, { signal }).then((r) =>
         r.ok ? r.json() : null

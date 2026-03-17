@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -40,10 +40,10 @@ export default function WorkspaceCrmLeadsPage() {
   const [formStatus, setFormStatus] = useState('novo');
   const [saving, setSaving] = useState(false);
 
-  const load = () => {
+  const load = useCallback(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     const params: { status?: string; origem?: string } = {};
     if (filterStatus) params.status = filterStatus;
     if (filterOrigem) params.origem = filterOrigem;
@@ -53,11 +53,11 @@ export default function WorkspaceCrmLeadsPage() {
       .then(setLeads)
       .catch(() => setError('Falha ao carregar leads'))
       .finally(() => setLoading(false));
-  };
+  }, [filterStatus, filterOrigem]);
 
   useEffect(() => {
     load();
-  }, [filterStatus, filterOrigem]);
+  }, [load]);
 
   const openCreate = () => {
     setEditingId(null);

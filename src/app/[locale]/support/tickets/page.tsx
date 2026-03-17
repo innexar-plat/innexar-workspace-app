@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { motion } from 'framer-motion';
@@ -29,10 +29,10 @@ export default function WorkspaceSupportTicketsPage() {
   const [filterCategory, setFilterCategory] = useState('');
   const [filterProjectId, setFilterProjectId] = useState('');
 
-  const load = () => {
+  const load = useCallback(() => {
     const token = getStaffToken();
     if (!token) return;
-    setLoading(true);
+    queueMicrotask(() => setLoading(true));
     const params = new URLSearchParams();
     if (filterCategory) params.set('category', filterCategory);
     if (filterProjectId.trim()) params.set('project_id', filterProjectId.trim());
@@ -43,11 +43,11 @@ export default function WorkspaceSupportTicketsPage() {
       .then(setTickets)
       .catch(() => setError('Erro ao carregar tickets'))
       .finally(() => setLoading(false));
-  };
+  }, [filterCategory, filterProjectId]);
 
   useEffect(() => {
     load();
-  }, [filterCategory, filterProjectId]);
+  }, [load]);
 
   const openCreate = () => {
     setFormSubject('');
