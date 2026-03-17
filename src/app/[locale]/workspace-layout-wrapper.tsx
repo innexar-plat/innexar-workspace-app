@@ -44,16 +44,20 @@ export default function WorkspaceLayoutWrapper({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+        <div
+          className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: "var(--cyan-500)", borderTopColor: "transparent" }}
+          aria-hidden="true"
+        />
       </div>
     );
   }
 
   if (!isWorkspaceApi) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 flex items-center justify-center p-4">
-        <p className="text-slate-400">
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
+        <p style={{ color: "var(--foreground-muted)" }}>
           Workspace is not configured. Set NEXT_PUBLIC_USE_WORKSPACE_API and
           NEXT_PUBLIC_WORKSPACE_API_URL.
         </p>

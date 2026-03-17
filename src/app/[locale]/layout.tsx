@@ -5,7 +5,21 @@ import Script from "next/script";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { ChunkLoadErrorHandler } from "@/components/chunk-load-error-handler";
+import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import WorkspaceLayoutWrapper from "./workspace-layout-wrapper";
+
+const THEME_SCRIPT = `
+(function(){
+  var k='workspace-theme';
+  try {
+    var s=localStorage.getItem(k);
+    if(s==='dark'){document.documentElement.classList.add('dark');}
+    else if(s==='light'){document.documentElement.classList.remove('dark');}
+    else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark');}
+    else{document.documentElement.classList.remove('dark');}
+  }catch(e){}
+})();
+`;
 
 const CHUNK_ERROR_SCRIPT = `
 (function(){
@@ -44,14 +58,19 @@ export default async function LocaleLayout({ children, params }: Props) {
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_SCRIPT}
+        </Script>
         <Script id="chunk-error-handler" strategy="beforeInteractive">
           {CHUNK_ERROR_SCRIPT}
         </Script>
-        <ChunkLoadErrorHandler>
-          <NextIntlClientProvider messages={messages} locale={locale}>
-            <WorkspaceLayoutWrapper>{children}</WorkspaceLayoutWrapper>
-          </NextIntlClientProvider>
-        </ChunkLoadErrorHandler>
+        <ThemeProvider>
+          <ChunkLoadErrorHandler>
+            <NextIntlClientProvider messages={messages} locale={locale}>
+              <WorkspaceLayoutWrapper>{children}</WorkspaceLayoutWrapper>
+            </NextIntlClientProvider>
+          </ChunkLoadErrorHandler>
+        </ThemeProvider>
       </body>
     </html>
   );

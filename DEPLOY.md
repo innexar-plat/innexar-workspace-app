@@ -10,6 +10,7 @@
 ## Domínio
 - App: `https://app.innexar.com.br`
 - API consumida: `https://api.innexar.com.br`
+- Integração entre Website, Workspace App e API: [INTEGRACAO.md](../INTEGRACAO.md)
 
 ## Runtime
 - Build pack: `dockerfile`

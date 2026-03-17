@@ -1,13 +1,49 @@
 @import "tailwindcss";
 
+/* Class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Light theme (default)
+   Ciano = ação principal; Roxo = secundário/destaque.
+   Bordas: opacidade baixa do ciano — não borda sólida.
+--------------------------------------------------------------------------- */
 :root {
-  --background: #0f172a;
+  /* Primary — cyan */
+  --cyan-400: #22c8d8;
+  --cyan-500: #0eafbf;
+  --cyan-600: #0a8f9d;
+  /* Secondary — purple */
+  --purple-400: #7c6fff;
+  --purple-500: #6355f5;
+  --purple-600: #4a3ecc;
+  /* Backgrounds */
+  --bg: #f0f2f5;
+  --surface: #fafbfc;
+  --card: #ffffff;
+  /* Semantic */
+  --foreground: #0e1117;
+  --foreground-muted: #64748b;
+  --border: rgba(10, 143, 157, 0.15);
+  --border-muted: rgba(0, 0, 0, 0.06);
+  /* Scrollbar */
+  --scroll-track: #e2e8f0;
+  --scroll-thumb: #94a3b8;
+  --scroll-thumb-hover: var(--cyan-500);
+}
+
+/* Dark theme */
+.dark {
+  --bg: #0e1117;
+  --surface: #161b24;
+  --card: #1c2333;
   --foreground: #f1f5f9;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --secondary: #94a3b8;
-  --muted: #1e293b;
-  --border: #334155;
+  --foreground-muted: #94a3b8;
+  --border: rgba(34, 200, 216, 0.15);
+  --border-muted: rgba(255, 255, 255, 0.06);
+  --scroll-track: #1e293b;
+  --scroll-thumb: #64748b;
+  --scroll-thumb-hover: var(--cyan-400);
 }
 
 * {
@@ -20,7 +56,7 @@ html {
 }
 
 body {
-  background: var(--background);
+  background: var(--bg);
   color: var(--foreground);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   line-height: 1.6;
@@ -33,14 +69,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--muted);
+  background: var(--scroll-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary);
+  background: var(--scroll-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: var(--scroll-thumb-hover);
 }

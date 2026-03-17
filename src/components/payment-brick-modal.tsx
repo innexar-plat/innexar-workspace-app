@@ -8,6 +8,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AlertCircle, Loader2, X } from 'lucide-react';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 const MP_SDK_URL = 'https://sdk.mercadopago.com/js/v2';
 
@@ -67,6 +68,7 @@ export function PaymentBrickModal({
   } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<{ unmount: () => void } | null>(null);
+  const { resolved: appTheme } = useTheme();
 
   const payEndpoint =
     mode === 'portal'
@@ -156,10 +158,10 @@ export function PaymentBrickModal({
         customization: {
           visual: {
             style: {
-              theme: 'dark',
+              theme: appTheme === 'dark' ? 'dark' : 'default',
               customVariables: {
                 formBackgroundColor: 'transparent',
-                baseColor: '#0891b2',
+                baseColor: '#0EAFBF',
               },
             },
           },

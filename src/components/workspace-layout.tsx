@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -22,84 +22,149 @@ import {
   ShoppingCart,
   Columns3,
   FileText,
+  Sun,
+  Moon,
+  Bell,
+  User,
+  ChevronDown as ChevronDownIcon,
 } from "lucide-react";
 import { STAFF_TOKEN_KEY } from "@/lib/workspace-api";
+import { useTheme } from "@/components/providers/ThemeProvider";
+
+interface NavChild {
+  key: string;
+  label: string;
+  href: string;
+}
 
 interface NavItem {
   key: string;
   label: string;
   icon: React.ElementType;
   href: string;
-  children?: { key: string; label: string; href: string }[];
+  children?: NavChild[];
 }
+
+interface NavCategory {
+  label: string;
+  items: NavItem[];
+}
+
+const SIDEBAR_CATEGORIES: NavCategory[] = [
+  {
+    label: "Principal",
+    items: [
+      { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/" },
+    ],
+  },
+  {
+    label: "Comercial",
+    items: [
+      { key: "customers", label: "Clientes", icon: UserCircle, href: "/customers" },
+      { key: "crm", label: "Contatos", icon: Users, href: "/crm/contacts" },
+      { key: "orders", label: "Pedidos", icon: ShoppingCart, href: "/orders" },
+      { key: "kanban", label: "Kanban", icon: Columns3, href: "/kanban" },
+    ],
+  },
+  {
+    label: "Projetos",
+    items: [
+      { key: "briefings", label: "Briefings", icon: FileText, href: "/briefings" },
+      { key: "projects", label: "Projetos", icon: FolderOpen, href: "/projects" },
+    ],
+  },
+  {
+    label: "Suporte",
+    items: [
+      {
+        key: "support",
+        label: "Suporte",
+        icon: MessageSquare,
+        href: "/support/tickets",
+      },
+    ],
+  },
+  {
+    label: "Financeiro",
+    items: [
+      {
+        key: "billing",
+        label: "Billing",
+        icon: Receipt,
+        href: "/billing/invoices",
+        children: [
+          { key: "invoices", label: "Faturas", href: "/billing/invoices" },
+          { key: "products", label: "Produtos", href: "/billing/products" },
+          { key: "price-plans", label: "Planos de preço", href: "/billing/price-plans" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Infraestrutura",
+    items: [
+      {
+        key: "hestia",
+        label: "Hestia",
+        icon: Server,
+        href: "/hestia",
+        children: [
+          { key: "hestia-overview", label: "Visão geral", href: "/hestia" },
+          { key: "hestia-users", label: "Usuários", href: "/hestia/users" },
+          { key: "hestia-domains", label: "Domínios", href: "/hestia/domains" },
+          { key: "hestia-packages", label: "Pacotes", href: "/hestia/packages" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Configurações",
+    items: [
+      {
+        key: "config",
+        label: "Configurações",
+        icon: Settings,
+        href: "/config/integrations",
+        children: [
+          { key: "integrations", label: "Integrações", href: "/config/integrations" },
+          { key: "hestia", label: "Hestia", href: "/config/hestia" },
+        ],
+      },
+    ],
+  },
+];
 
 export default function WorkspaceLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { theme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [billingOpen, setBillingOpen] = useState(true);
   const [configOpen, setConfigOpen] = useState(false);
   const [hestiaOpen, setHestiaOpen] = useState(true);
+  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const headerMenuRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
 
-  const navItems: NavItem[] = [
-    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/" },
-    { key: "customers", label: "Clientes", icon: UserCircle, href: "/customers" },
-    { key: "crm", label: "Contatos", icon: Users, href: "/crm/contacts" },
-    { key: "orders", label: "Pedidos", icon: ShoppingCart, href: "/orders" },
-    { key: "kanban", label: "Kanban", icon: Columns3, href: "/kanban" },
-    { key: "briefings", label: "Briefings", icon: FileText, href: "/briefings" },
-    { key: "projects", label: "Projetos", icon: FolderOpen, href: "/projects" },
-    {
-      key: "support",
-      label: "Suporte",
-      icon: MessageSquare,
-      href: "/support/tickets",
-    },
-    {
-      key: "billing",
-      label: "Billing",
-      icon: Receipt,
-      href: "/billing/invoices",
-      children: [
-        { key: "invoices", label: "Faturas", href: "/billing/invoices" },
-        { key: "products", label: "Produtos", href: "/billing/products" },
-        {
-          key: "price-plans",
-          label: "Planos de preço",
-          href: "/billing/price-plans",
-        },
-      ],
-    },
-    {
-      key: "hestia",
-      label: "Hestia",
-      icon: Server,
-      href: "/hestia",
-      children: [
-        { key: "hestia-overview", label: "Visão geral", href: "/hestia" },
-        { key: "hestia-users", label: "Usuários", href: "/hestia/users" },
-        { key: "hestia-domains", label: "Domínios", href: "/hestia/domains" },
-        { key: "hestia-packages", label: "Pacotes", href: "/hestia/packages" },
-      ],
-    },
-    {
-      key: "config",
-      label: "Configurações",
-      icon: Settings,
-      href: "/config/integrations",
-      children: [
-        { key: "integrations", label: "Integrações", href: "/config/integrations" },
-        { key: "hestia", label: "Hestia", href: "/config/hestia" },
-      ],
-    },
-  ];
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        headerMenuRef.current &&
+        !headerMenuRef.current.contains(e.target as Node)
+      ) {
+        setHeaderMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = () => {
+    setHeaderMenuOpen(false);
     localStorage.removeItem(STAFF_TOKEN_KEY);
     router.push("/login");
   };
@@ -109,8 +174,23 @@ export default function WorkspaceLayout({
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  const subOpen = (key: string) =>
+    key === "billing"
+      ? billingOpen
+      : key === "config"
+        ? configOpen
+        : key === "hestia"
+          ? hestiaOpen
+          : false;
+
+  const setSubOpen = (key: string, value: boolean) => {
+    if (key === "billing") setBillingOpen(value);
+    if (key === "config") setConfigOpen(value);
+    if (key === "hestia") setHestiaOpen(value);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen" style={{ background: "var(--bg)" }}>
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -134,13 +214,23 @@ export default function WorkspaceLayout({
                 ? -280
                 : 0,
         }}
-        className={`fixed top-0 left-0 h-full bg-slate-900/95 backdrop-blur-xl border-r border-white/5 z-50 flex flex-col
+        className={`fixed top-0 left-0 h-full backdrop-blur-xl z-50 flex flex-col border-r transition-colors
           ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        style={{
+          background: "var(--surface)",
+          borderColor: "var(--border)",
+        }}
       >
-        <div className="h-20 flex items-center justify-between px-6 border-b border-white/5">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-5 h-5 text-white" />
+        <div
+          className="h-20 flex items-center justify-between px-6 border-b shrink-0"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <Link href="/" className="flex items-center gap-2 min-w-0">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "var(--cyan-500)", color: "#fff" }}
+            >
+              <Sparkles className="w-5 h-5" />
             </div>
             <AnimatePresence>
               {sidebarOpen && (
@@ -148,7 +238,8 @@ export default function WorkspaceLayout({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
-                  className="font-bold text-white whitespace-nowrap"
+                  className="font-bold whitespace-nowrap truncate"
+                  style={{ color: "var(--foreground)" }}
                 >
                   Workspace
                 </motion.span>
@@ -158,138 +249,179 @@ export default function WorkspaceLayout({
           <button
             type="button"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="hidden lg:flex min-w-[44px] min-h-[44px] w-11 h-11 items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+            className="hidden lg:flex min-w-[44px] min-h-[44px] w-11 h-11 items-center justify-center rounded-lg transition-colors hover:opacity-80"
+            style={{ background: "var(--border)" }}
             aria-label={sidebarOpen ? "Recolher menu" : "Expandir menu"}
           >
             <motion.div animate={{ rotate: sidebarOpen ? 0 : 180 }}>
-              <ChevronLeft className="w-4 h-4 text-slate-400" />
+              <ChevronLeft className="w-4 h-4" style={{ color: "var(--foreground-muted)" }} />
             </motion.div>
           </button>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10"
+            className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-lg transition-colors hover:opacity-80"
+            style={{ background: "var(--border)" }}
             aria-label="Fechar menu"
           >
-            <X className="w-4 h-4 text-slate-400" />
+            <X className="w-4 h-4" style={{ color: "var(--foreground-muted)" }} />
           </button>
         </div>
 
-        <nav className="flex-1 py-6 px-3 overflow-y-auto">
-          <ul className="space-y-1">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const hasChildren = item.children && item.children.length > 0;
-              const isBilling = item.key === "billing";
-              const isConfig = item.key === "config";
-              const isHestia = item.key === "hestia";
-              const subOpen = isBilling
-                ? billingOpen
-                : isConfig
-                  ? configOpen
-                  : isHestia
-                    ? hestiaOpen
-                    : false;
+        <nav className="flex-1 py-4 px-3 overflow-y-auto">
+          {SIDEBAR_CATEGORIES.map((cat) => (
+            <div key={cat.label} className="mb-6">
+              {sidebarOpen && (
+                <p
+                  className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider"
+                  style={{ color: "var(--foreground-muted)" }}
+                >
+                  {cat.label}
+                </p>
+              )}
+              <ul className="space-y-1">
+                {cat.items.map((item) => {
+                  const Icon = item.icon;
+                  const hasChildren = item.children && item.children.length > 0;
+                  const open = subOpen(item.key);
 
-              if (hasChildren && sidebarOpen) {
-                return (
-                  <li key={item.key}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isBilling) setBillingOpen(!billingOpen);
-                        if (isConfig) setConfigOpen(!configOpen);
-                        if (isHestia) setHestiaOpen(!hestiaOpen);
-                      }}
-                      className="w-full group flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
-                    >
-                      <Icon className="w-5 h-5 flex-shrink-0" />
-                      <span className="flex-1 text-left font-medium">
-                        {item.label}
-                      </span>
-                      <motion.div animate={{ rotate: subOpen ? 180 : 0 }}>
-                        <ChevronDown className="w-4 h-4" />
-                      </motion.div>
-                    </button>
-                    <AnimatePresence>
-                      {subOpen && item.children && (
-                        <motion.ul
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          className="overflow-hidden pl-4 mt-1 space-y-1 border-l border-white/5 ml-5"
+                  if (hasChildren && sidebarOpen) {
+                    return (
+                      <li key={item.key}>
+                        <button
+                          type="button"
+                          onClick={() => setSubOpen(item.key, !open)}
+                          className="w-full group flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-left hover:opacity-90"
+                          style={{
+                            color: "var(--foreground-muted)",
+                            background: "transparent",
+                          }}
                         >
-                          {item.children.map((child) => (
-                            <li key={child.key}>
-                              <Link
-                                href={child.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`block py-2 px-3 rounded-lg text-sm transition-all
-                                  ${isActive(child.href) ? "text-blue-400 bg-blue-500/10" : "text-slate-400 hover:text-white"}`}
-                              >
-                                {child.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </motion.ul>
-                      )}
-                    </AnimatePresence>
-                  </li>
-                );
-              }
+                          <Icon className="w-5 h-5 flex-shrink-0" />
+                          <span className="flex-1 font-medium">
+                            {item.label}
+                          </span>
+                          <motion.div animate={{ rotate: open ? 180 : 0 }}>
+                            <ChevronDown className="w-4 h-4" />
+                          </motion.div>
+                        </button>
+                        <AnimatePresence>
+                          {open && item.children && (
+                            <motion.ul
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden pl-4 mt-1 space-y-1 border-l ml-5"
+                              style={{ borderColor: "var(--border)" }}
+                            >
+                              {item.children.map((child) => (
+                                <li key={child.key}>
+                                  <Link
+                                    href={child.href}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={`block py-2 px-3 rounded-lg text-sm transition-all ${
+                                      isActive(child.href)
+                                        ? "font-medium"
+                                        : ""
+                                    }`}
+                                    style={{
+                                      color: isActive(child.href)
+                                        ? "var(--cyan-500)"
+                                        : "var(--foreground-muted)",
+                                      background: isActive(child.href)
+                                        ? "rgba(10, 143, 157, 0.08)"
+                                        : "transparent",
+                                    }}
+                                  >
+                                    {child.label}
+                                  </Link>
+                                </li>
+                              ))}
+                            </motion.ul>
+                          )}
+                        </AnimatePresence>
+                      </li>
+                    );
+                  }
 
-              if (hasChildren && !sidebarOpen) {
-                return (
-                  <li key={item.key}>
-                    <Link
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className={`flex items-center justify-center gap-3 px-4 py-3 rounded-xl transition-all
-                        ${isActive(item.href) ? "bg-blue-500/20 text-blue-400" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </Link>
-                  </li>
-                );
-              }
-
-              const active = isActive(item.href);
-              return (
-                <li key={item.key}>
-                  <Link
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                      ${active ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-blue-500/30" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
-                  >
-                    <Icon
-                      className={`w-5 h-5 flex-shrink-0 ${active ? "text-blue-400" : "text-slate-400 group-hover:text-blue-400"}`}
-                    />
-                    <AnimatePresence>
-                      {sidebarOpen && (
-                        <motion.span
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
-                          className="flex-1 font-medium"
+                  if (hasChildren && !sidebarOpen) {
+                    return (
+                      <li key={item.key}>
+                        <Link
+                          href={item.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className={`flex items-center justify-center px-4 py-3 rounded-xl transition-all ${
+                            isActive(item.href) ? "" : ""
+                          }`}
+                          style={{
+                            color: isActive(item.href)
+                              ? "var(--cyan-500)"
+                              : "var(--foreground-muted)",
+                            background: isActive(item.href)
+                              ? "rgba(10, 143, 157, 0.08)"
+                              : "transparent",
+                          }}
                         >
-                          {item.label}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                          <Icon className="w-5 h-5" />
+                        </Link>
+                      </li>
+                    );
+                  }
+
+                  const active = isActive(item.href);
+                  return (
+                    <li key={item.key}>
+                      <Link
+                        href={item.href}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200"
+                        style={{
+                          color: active ? "var(--cyan-500)" : "var(--foreground-muted)",
+                          background: active
+                            ? "rgba(10, 143, 157, 0.08)"
+                            : "transparent",
+                          border: active ? "1px solid var(--border)" : "1px solid transparent",
+                        }}
+                      >
+                        <Icon
+                          className="w-5 h-5 flex-shrink-0"
+                          style={{ color: "inherit" }}
+                        />
+                        <AnimatePresence>
+                          {sidebarOpen && (
+                            <motion.span
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              className="flex-1 font-medium"
+                            >
+                              {item.label}
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
 
-        <div className="p-3 border-t border-white/5 space-y-1">
+        <div
+          className="p-3 border-t space-y-1 shrink-0"
+          style={{ borderColor: "var(--border)" }}
+        >
           <Link
             href="/account"
             onClick={() => setMobileMenuOpen(false)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-              ${pathname === "/account" ? "bg-blue-500/20 text-blue-400" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+              pathname === "/account" ? "" : ""
+            }`}
+            style={{
+              color: pathname === "/account" ? "var(--cyan-500)" : "var(--foreground-muted)",
+              background: pathname === "/account" ? "rgba(10, 143, 157, 0.08)" : "transparent",
+            }}
           >
             <KeyRound className="w-5 h-5 flex-shrink-0" />
             <AnimatePresence>
@@ -308,7 +440,8 @@ export default function WorkspaceLayout({
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 min-h-[44px]"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 min-h-[44px] text-left hover:opacity-80"
+            style={{ color: "var(--foreground-muted)" }}
             aria-label="Sair da conta"
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
@@ -331,18 +464,107 @@ export default function WorkspaceLayout({
       <div
         className={`transition-all duration-300 ${sidebarOpen ? "lg:ml-[280px]" : "lg:ml-20"}`}
       >
-        <header className="sticky top-0 z-30 h-20 bg-slate-900/80 backdrop-blur-xl border-b border-white/5">
-          <div className="h-full px-4 lg:px-8 flex items-center justify-between">
+        <header
+          className="sticky top-0 z-30 h-20 backdrop-blur-xl border-b shrink-0"
+          style={{
+            background: "var(--surface)",
+            borderColor: "var(--border)",
+          }}
+        >
+          <div className="h-full px-4 lg:px-8 flex items-center justify-between gap-4">
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 transition-colors"
+              className="lg:hidden min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-xl transition-colors hover:opacity-80"
+              style={{ background: "var(--border)" }}
               aria-label="Abrir menu"
             >
-              <Menu className="w-5 h-5 text-white" />
+              <Menu className="w-5 h-5" style={{ color: "var(--foreground)" }} />
             </button>
-            <h1 className="text-xl font-bold text-white">Admin</h1>
-            <div className="w-10" />
+            <h1 className="text-xl font-bold truncate" style={{ color: "var(--foreground)" }}>
+              Admin
+            </h1>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-xl transition-colors hover:opacity-80"
+                style={{ background: "var(--border)", color: "var(--foreground)" }}
+                aria-label={theme === "dark" ? "Tema claro" : "Tema escuro"}
+              >
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </button>
+
+              <div className="relative">
+                <Link
+                  href="/support/tickets"
+                  className="min-w-[44px] min-h-[44px] w-11 h-11 flex items-center justify-center rounded-xl transition-colors hover:opacity-80 relative"
+                  style={{ background: "var(--border)", color: "var(--foreground)" }}
+                  aria-label="Notificações / Suporte"
+                >
+                  <Bell className="w-5 h-5" />
+                </Link>
+              </div>
+
+              <div className="relative" ref={headerMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setHeaderMenuOpen(!headerMenuOpen)}
+                  className="flex items-center gap-2 min-w-[44px] min-h-[44px] pl-2 pr-3 py-2 rounded-xl transition-colors hover:opacity-80"
+                  style={{ background: "var(--border)", color: "var(--foreground)" }}
+                  aria-label="Menu do usuário"
+                  aria-expanded={headerMenuOpen}
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: "var(--cyan-500)", color: "#fff" }}
+                  >
+                    <User className="w-4 h-4" />
+                  </div>
+                  <ChevronDownIcon
+                    className={`w-4 h-4 hidden sm:block transition-transform ${headerMenuOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {headerMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      className="absolute right-0 top-full mt-2 py-2 min-w-[200px] rounded-xl shadow-lg z-50"
+                      style={{
+                        background: "var(--card)",
+                        border: "1px solid var(--border)",
+                      }}
+                    >
+                      <Link
+                        href="/account"
+                        onClick={() => setHeaderMenuOpen(false)}
+                        className="flex items-center gap-2 w-full px-4 py-3 text-left transition-colors hover:opacity-80"
+                        style={{ color: "var(--foreground)" }}
+                      >
+                        <KeyRound className="w-4 h-4" />
+                        Alterar senha
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 w-full px-4 py-3 text-left transition-colors hover:opacity-80"
+                        style={{ color: "var(--foreground-muted)" }}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sair
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </header>
         <main className="p-4 lg:p-8">{children}</main>
