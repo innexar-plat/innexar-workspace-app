@@ -52,6 +52,7 @@ const SIDEBAR_CATEGORIES: NavCategory[] = [
     label: "Principal",
     items: [
       { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/" },
+      { key: "assistente", label: "Assistente IA", icon: Sparkles, href: "/assistente" },
     ],
   },
   {

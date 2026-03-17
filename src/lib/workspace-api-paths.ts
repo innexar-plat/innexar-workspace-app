@@ -151,6 +151,9 @@ export const WORKSPACE_API_PATHS = {
     USER_UNSUSPEND: (user: string) =>
       `${PREFIX}/hestia/users/${encodeURIComponent(user)}/unsuspend`,
   },
+  OPENCLAW: {
+    SESSION: `${PREFIX}/openclaw-session`,
+  },
   CONFIG: {
     INTEGRATIONS: `${PREFIX}/config/integrations`,
     INTEGRATION_DETAIL: (id: string | number) =>
